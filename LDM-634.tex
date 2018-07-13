@@ -1,0 +1,173 @@
+\documentclass[DM,lsstdraft,toc]{lsstdoc}
+
+
+% lsstdoc documentation: https://lsst-texmf.lsst.io/lsstdoc.html
+
+% Package imports go here.
+\usepackage{enumitem}
+
+% Local commands go here.
+
+\newcommand{\usecase}[2]{\subsection{\emph{#1}: #2}\label{use:#1}}
+
+\newenvironment{flow}[1][Basic flow]
+  {\subsubsection*{#1}\begin{enumerate}[label=\alph*.,itemsep=0pt]}
+  {\end{enumerate}}
+
+% To add a short-form title:
+% \title[Short title]{Title}
+\title{Production Campaign Management Services Use Cases}
+
+% Optional subtitle
+% \setDocSubtitle{A subtitle}
+
+\author{Mikolaj Kowalik, Michelle Gower, and Rob Kooper}
+
+\setDocRef{LDM-634}
+
+\date{\today}
+
+% Optional: name of the document's curator
+% \setDocCurator{The Curator of this Document}
+
+\setDocAbstract{%
+Abstract text.
+}
+
+% Change history defined here.
+% Order: oldest first.
+% Fields: VERSION, DATE, DESCRIPTION, OWNER NAME.
+% See LPM-51 for version number policy.
+\setDocChangeRecord{%
+  \addtohist{1}{YYY-MM-DD}{Unreleased.}{Mikolaj Kowalik}
+}
+
+\begin{document}
+
+% Create the title page.
+% Table of contents is added automatically with the "toc" class option.
+\maketitle
+
+\section{Introduction}
+
+This document describes use cases for campaign management service.
+
+\section{Actors}
+
+\begin{description}
+  \item[Operator]
+    Batch production operator for DRP (has additional privileges).
+\end{description}
+
+\section{Campaign management}
+
+\usecase{CM1}{Initiate campaign}
+Campaigns are initiated in response to an LSST objective, by specifying an
+initial set of pipelines, a coverage set, and an initial priority.  The Batch
+Production Service is consulted with a reasonable lead time.  Consistent with
+LSST processes, pipelines can be modified or added (for example, in the case of
+after-burners) during a campaign. These changes and additions are admitted when
+the criteria of change control processes are satisfied, including
+\begin{itemize}
+  \item
+    relevant build-and test criteria
+  \item
+    the impact of resource-intensive campaigns is approved and understood
+  \item
+   production-scale test campaigns
+\end{itemize}
+
+\usecase{CM2}{Terminate failed campaign}
+Reasons for a campaign failure will be documented and submitted to Science
+Operations for review. Deletion of data products needs to be scheduled so that
+it occurs after the review is completed. This includes backing out files,
+materials from databases, and other production artifacts from the Data
+Backbone, and maintaining production records as these activities occur.
+
+\usecase{CM3}{Pause campaign}
+Stop a long running campaign from proceeding allowing for TBD interventions.
+
+\usecase{CM4}{Deal with problematic campaign}
+LSST is a large system. Pipelines will evolve and be maintained. There will be
+the campaigns, described in the operations documents. It is the nature of the
+system that as issues emerge extra resources will be needed to provide focused
+scrutiny on aspects of production for some pipeline. In many cases problems
+will be resolved by bug fixes, or addressed by quality controls and changes to
+processes. Any system needs to support mustering focused effort on quality
+analysis that is urgent, and lacks an adequate basis for robust quality
+controls.  The LSST Data Facility Batch Production Services staff contribute
+effort to to solve these problems, in collaboration with Science Operations (or
+other parties responsible for codes).
+
+\usecase{CM5}{Deal with defective data}
+Production data may be deemed defective immediately as the associated pipelines
+terminate or after a period of time when inspection processes run.  Such data
+need to be marked such that they will not be included in release data and will
+be set aside for further analysis.
+
+\usecase{CM6}{Deal with sudden lack (or surplus) in resources}
+As noted above, for large scale computing, the amount of resource available to
+support all campaigns will vary due to scheduled and unscheduled outages.
+
+The technical system responds to an increase or decrease in resources by
+running more or few jobs, once the workload manager is aware of the new level
+of resources. The technical system responds to hardware failures on a running
+job in just like any other system -- with the ultimate recovery being to delete
+an partial data and retry, while respecting the priorities of the respective
+campaigns.
+
+\usecase{CM7}{Respect campaign priority}
+Each campaign has an adjustable campaign priority reflecting LSST priority for
+that objective. The service needs to support reliable operation of an ensemble
+of many campaigns, respecting those priorities.
+
+\usecase{CM1}{Monitor computing resources}
+The Operator checks which computing platforms are available for a campaign
+execution.
+\begin{flow}
+  \item
+    The Campaign Manager periodically gathers data regarding an availability of
+    a set of computing resources.
+  \item
+    It detects unscheduled downtimes of the resources.
+  \item 
+    It reports back to the operator current status of the resources.
+\end{flow}
+
+\usecase{CM1}{Monitor executions of campaigns}
+The Operator checks the status of dispatched campaigns.
+\begin{flow}
+  \item
+    The Campaign Manager periodically gathers real-time data regarding
+    \begin{itemize}
+      \item
+        number of running, pending, completed, and failed jobs for each campaign
+      \item
+        resource usage for individual, running jobs (memory, data volume)
+      \item
+        failed pipelines and campaigns
+    \end{itemize}
+  \item
+    After data are gathered, the Campaign Manager exposes these data to the
+    Operator.
+\end{flow}
+
+\usecase{CM1}{Restart a failed pipeline}
+The Operator after resolving issues dispatches a failed pipeline again to the
+WMS to start it from the last point of failure \emph{without} waiting for a
+campaign to complete a first run through of all pipelines.
+
+\usecase{CM1}{Allow for parameter overrides}
+The Operator decides to run a campaign overriding a subset of configuration settings.
+\begin{flow}
+  \item
+    The Campaign Manager overrides respective default settings with values
+    specified by the Operator.
+\end{flow}
+
+% Include all the relevant bib files.
+% https://lsst-texmf.lsst.io/lsstdoc.html#bibliographies
+%\bibliography{lsst,lsst-dm,refs_ads,refs,books}
+
+\end{document}
+# vim: ts=2 sw=2 et
